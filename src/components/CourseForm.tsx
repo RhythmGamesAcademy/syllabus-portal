@@ -559,8 +559,8 @@ export default function CourseForm() {
               checkboxId: "confirm-regulations-course",
               checked: currentFormData.confirmRegulations,
               markdownPath: "/lecturer-policy.md",
-              title: t("講師規約"),
-              label: t("に同意し、遵守することを誓います"),
+              title: t("講師向け運用案内（改訂案）"),
+              label: t("を確認し、学園規則第6章第2条の同意事項を承諾します"),
               field: "confirmRegulations",
             },
           ]}
