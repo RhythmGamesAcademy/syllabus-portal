@@ -3,12 +3,13 @@
 import React from "react";
 import Watermark from "./Watermark";
 import { formatDate } from "@/lib/generatePng";
-import { useLocale } from "@/lib/i18n";
+import { useLocale, type Locale, translate } from "@/lib/i18n";
 
 interface PngTemplateProps {
   title: string;
   children: React.ReactNode;
   generatedAt?: Date;
+  locale?: Locale;
 }
 
 /**
@@ -23,8 +24,10 @@ interface PngTemplateProps {
  * Layer order: Background (white) -> Watermark -> Content
  */
 const PngTemplate = React.forwardRef<HTMLDivElement, PngTemplateProps>(
-  function PngTemplate({ title, children, generatedAt }, ref) {
-    const { t } = useLocale();
+  function PngTemplate({ title, children, generatedAt, locale }, ref) {
+    const { locale: pageLocale } = useLocale();
+    const outputLocale = locale ?? pageLocale;
+    const t = (text: string) => translate(text, outputLocale);
     const today = formatDate(generatedAt);
 
     return (
@@ -107,7 +110,7 @@ const PngTemplate = React.forwardRef<HTMLDivElement, PngTemplateProps>(
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/ongakugamegakuen-logo_b.svg"
-            alt={t("音楽ゲーム学園")}
+            alt="音楽ゲーム学園"
             style={{
               height: "54px",
               width: "auto",

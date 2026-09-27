@@ -360,6 +360,12 @@ export function useLocale(): LocaleContextValue {
   return context;
 }
 
-function translate(text: string, locale: Locale): string {
+export function translate(text: string, locale: Locale): string {
   return locale === "ja" ? text : translations[text]?.[locale] ?? text;
+}
+
+export function getLocaleForLanguage(language: string): Locale {
+  if (language === "English") return "en";
+  if (language === "中文") return "zh";
+  return "ja";
 }

@@ -5,7 +5,7 @@ import PngTemplate from "./PngTemplate";
 import type { CourseFormData } from "@/lib/types";
 import { calculateCredits } from "@/lib/types";
 import { formatOfferingForPng } from "@/lib/academicPeriod";
-import { useLocale } from "@/lib/i18n";
+import { getLocaleForLanguage, translate } from "@/lib/i18n";
 
 /**
  * Shared styles for the PNG document fields
@@ -77,13 +77,19 @@ const CoursePngTemplate = React.forwardRef<
   HTMLDivElement,
   CoursePngTemplateProps
 >(function CoursePngTemplate({ data, generatedAt, termNumber }, ref) {
-  const { locale, t } = useLocale();
+  const locale = getLocaleForLanguage(data.language);
+  const t = (text: string) => translate(text, locale);
   const sessionCount =
     typeof data.sessionCount === "number" ? data.sessionCount : 0;
   const credits = calculateCredits(sessionCount);
 
   return (
-    <PngTemplate ref={ref} title={t("シラバス")} generatedAt={generatedAt}>
+    <PngTemplate
+      ref={ref}
+      title={t("シラバス")}
+      generatedAt={generatedAt}
+      locale={locale}
+    >
       {/* Basic information */}
       <div style={twoColGrid}>
         <div style={fieldGroupStyle}>
