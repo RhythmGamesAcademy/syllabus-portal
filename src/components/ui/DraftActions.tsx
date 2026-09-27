@@ -1,5 +1,7 @@
 "use client";
 
+import { useLocale } from "@/lib/i18n";
+
 export type DraftNotice = {
   kind: "success" | "info" | "error";
   message: string;
@@ -16,14 +18,15 @@ export default function DraftActions({
   onSave,
   onDelete,
 }: DraftActionsProps) {
+  const { t } = useLocale();
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap gap-3">
         <button type="button" className="btn-secondary" onClick={onSave}>
-          下書きを保存
+          {t("下書きを保存")}
         </button>
         <button type="button" className="btn-secondary" onClick={onDelete}>
-          下書きを削除
+          {t("下書きを削除")}
         </button>
       </div>
       {notice && (
@@ -38,7 +41,7 @@ export default function DraftActions({
           role={notice.kind === "error" ? "alert" : "status"}
           aria-live={notice.kind === "error" ? "assertive" : "polite"}
         >
-          {notice.message}
+          {t(notice.message)}
         </p>
       )}
     </div>

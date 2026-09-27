@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import { useMarkdown } from "@/lib/useMarkdown";
+import { useLocale } from "@/lib/i18n";
 
 const FOCUSABLE_SELECTOR =
   'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
@@ -24,6 +25,7 @@ export default function PolicyModal({
   markdownPath,
   title,
 }: PolicyModalProps) {
+  const { t } = useLocale();
   const { content, isLoading, error } = useMarkdown(markdownPath);
   const [hasReachedBottom, setHasReachedBottom] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -132,7 +134,7 @@ export default function PolicyModal({
           </h2>
           <button
             onClick={onClose}
-            aria-label="閉じる"
+            aria-label={t("閉じる")}
             className="text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors text-xl font-semibold px-2"
           >
             ✕
@@ -148,11 +150,11 @@ export default function PolicyModal({
           {isLoading ? (
             <div className="flex flex-col items-center justify-center h-48 space-y-4">
               <span className="spinner w-8 h-8 border-4" />
-              <p className="text-[var(--color-accent-lavender)]">読み込み中...</p>
+              <p className="text-[var(--color-accent-lavender)]">{t("読み込み中...")}</p>
             </div>
           ) : error ? (
             <div className="text-[var(--color-error)] p-4 bg-[var(--color-error-bg)] rounded-lg">
-              読み込みエラー: {error}
+              {t("読み込みエラー: ")}{error}
             </div>
           ) : (
             <ReactMarkdown>{content}</ReactMarkdown>
@@ -164,7 +166,7 @@ export default function PolicyModal({
             onClick={onClose}
             className="px-4 py-2 rounded-lg text-sm font-medium border border-[var(--color-border)] hover:bg-[var(--color-bg-elevated)] transition-colors"
           >
-            閉じる
+            {t("閉じる")}
           </button>
           <button
             onClick={onAgree}
@@ -175,7 +177,7 @@ export default function PolicyModal({
                 : 'bg-[var(--color-bg-elevated)] text-[var(--color-text-secondary)] cursor-not-allowed'
             }`}
           >
-            同意する
+            {t("同意する")}
           </button>
         </div>
       </div>

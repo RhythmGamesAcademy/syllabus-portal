@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useLocale } from "@/lib/i18n";
 
 interface TextInputProps {
   id: string;
@@ -33,6 +34,7 @@ export default function TextInput({
   max,
   disabled = false,
 }: TextInputProps) {
+  const { t } = useLocale();
   const charCount = value.length;
   // 上限ちょうど (30/30) は有効。超過 (31/30) からエラー表示。
   // 推敲しながら書けるよう入力の切り捨て (DOM の maxLength) は行わず、
@@ -45,9 +47,9 @@ export default function TextInput({
       <label htmlFor={id} className="form-label">
         {label}
         {required ? (
-          <span className="badge-required">必須</span>
+          <span className="badge-required">{t("必須")}</span>
         ) : (
-          <span className="badge-optional">任意</span>
+          <span className="badge-optional">{t("任意")}</span>
         )}
       </label>
       <input
@@ -75,8 +77,8 @@ export default function TextInput({
             aria-live="polite"
           >
             {isOverLimit
-              ? `${charCount - maxLength}文字超過しています`
-              : isAtLimit && "上限に達しました"}
+              ? `${charCount - maxLength}${t("文字超過しています")}`
+              : isAtLimit && t("上限に達しました")}
           </div>
           <div id={`${id}-counter`} className={`char-counter !mt-0 ${isOverLimit ? "over-limit" : ""}`}>
             {charCount} / {maxLength}

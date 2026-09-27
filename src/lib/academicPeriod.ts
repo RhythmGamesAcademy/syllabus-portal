@@ -1,4 +1,5 @@
 import type { CourseOfferingType } from "./types";
+import type { Locale } from "./i18n";
 import { getTokyoDateParts } from "./japanTime";
 
 const FIRST_TERM_START_YEAR = 2026;
@@ -35,8 +36,17 @@ export function getNextAcademicTermBoundary(date: Date): Date {
 
 export function formatOfferingForPng(
   offeringType: CourseOfferingType,
-  termNumber: number
+  termNumber: number,
+  locale: Locale = "ja"
 ): string {
+  if (locale !== "ja") {
+    const term =
+      locale === "en" ? `Term #${termNumber}` : `第${termNumber}学期`;
+    if (offeringType === "当期講義") return `${offeringType} (${term})`;
+    return locale === "en"
+      ? `${offeringType} (from ${term})`
+      : `${offeringType}（从${term}开始）`;
+  }
   const term = `#${termNumber}期`;
   return offeringType === "当期講義"
     ? `${offeringType}（${term}）`

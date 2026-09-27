@@ -4,6 +4,7 @@ import React from "react";
 import Checkbox from "./Checkbox";
 import PolicyModal from "./PolicyModal";
 import type { AgreementField } from "@/lib/types";
+import { useLocale } from "@/lib/i18n";
 
 type PolicyItem = {
   modalId: string;
@@ -38,6 +39,7 @@ export default function AgreementSection({
   onCheckboxChange,
   onOpenModal,
 }: AgreementSectionProps) {
+  const { t } = useLocale();
   return (
     <>
       <div className="space-y-2">
@@ -46,7 +48,7 @@ export default function AgreementSection({
           checked={confirmNoFalsehood}
           onChange={onFalsehoodChange}
         >
-          申請内容に虚偽はありません
+          {t("申請内容に虚偽はありません")}
         </Checkbox>
 
         {policies.map((policy) => (

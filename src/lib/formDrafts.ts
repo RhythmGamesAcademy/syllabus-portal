@@ -1,13 +1,19 @@
 import {
   COURSE_OFFERING_TYPES,
+  COURSE_LANGUAGES,
   DEPARTMENTS,
   DEPARTMENT_CATEGORIES,
   type CourseFormData,
   type CourseOfferingType,
+  type CourseLanguage,
   type Department,
   type InstructorFormData,
 } from "./types";
-import { MAX_ACHIEVEMENT_ITEMS, MAX_GOAL_ITEMS } from "./constants";
+import {
+  MAX_ACHIEVEMENT_ITEMS,
+  MAX_GOAL_ITEMS,
+  SESSION_MAX,
+} from "./constants";
 import { isRecordValue } from "./localDraft";
 
 export const INSTRUCTOR_DRAFT_KEY = "rga-forms-portal:instructor-draft";
@@ -57,6 +63,7 @@ export function parseInstructorDraft(value: unknown): InstructorDraftData | null
     achievements,
     selfAppeal,
   } = value;
+  const normalizedCategory = normalizeCourseCategory(department, courseCategory);
 
   if (
     !isDraftText(name) ||
@@ -66,8 +73,7 @@ export function parseInstructorDraft(value: unknown): InstructorDraftData | null
     !isDraftText(xId) ||
     !isDraftText(field) ||
     !isDepartment(department) ||
-    !isDraftText(courseCategory) ||
-    !isCategoryForDepartment(department, courseCategory) ||
+    normalizedCategory === null ||
     !isDraftText(fieldReason) ||
     !isStringList(achievements, MAX_ACHIEVEMENT_ITEMS) ||
     !isDraftText(selfAppeal)
@@ -82,7 +88,7 @@ export function parseInstructorDraft(value: unknown): InstructorDraftData | null
     xId,
     field,
     department,
-    courseCategory,
+    courseCategory: normalizedCategory,
     fieldReason,
     achievements,
     selfAppeal,
@@ -100,6 +106,10 @@ export function createCourseDraft(data: CourseFormData): CourseDraftData {
     overview: data.overview,
     goals: [...data.goals],
     approach: data.approach,
+    language: data.language,
+    sessionContents: [...data.sessionContents],
+    aiUsage: data.aiUsage,
+    gradingMethod: data.gradingMethod,
     references: data.references,
   };
 }
@@ -117,20 +127,30 @@ export function parseCourseDraft(value: unknown): CourseDraftData | null {
     overview,
     goals,
     approach,
-    references,
+    language = "",
+    sessionContents = [],
+    aiUsage = "",
+    gradingMethod = "",
+    references = "",
   } = value;
+
+  const normalizedOfferingType = normalizeCourseOfferingType(offeringType);
+  const normalizedCategory = normalizeCourseCategory(department, courseCategory);
 
   if (
     !isDraftText(subjectName) ||
     !isDraftText(instructorName) ||
     !isDepartment(department) ||
-    !isDraftText(courseCategory) ||
-    !isCategoryForDepartment(department, courseCategory) ||
-    !isCourseOfferingType(offeringType) ||
+    normalizedCategory === null ||
+    !isCourseOfferingType(normalizedOfferingType) ||
     !isSessionCount(sessionCount) ||
     !isDraftText(overview) ||
     !isStringList(goals, MAX_GOAL_ITEMS) ||
     !isDraftText(approach) ||
+    !isCourseLanguage(language) ||
+    !isOptionalStringList(sessionContents, SESSION_MAX) ||
+    !isDraftText(aiUsage) ||
+    !isDraftText(gradingMethod) ||
     !isDraftText(references)
   ) {
     return null;
@@ -140,12 +160,16 @@ export function parseCourseDraft(value: unknown): CourseDraftData | null {
     subjectName,
     instructorName,
     department,
-    courseCategory,
-    offeringType,
+    courseCategory: normalizedCategory,
+    offeringType: normalizedOfferingType,
     sessionCount,
     overview,
     goals,
     approach,
+    language,
+    sessionContents,
+    aiUsage,
+    gradingMethod,
     references,
   };
 }
@@ -163,20 +187,51 @@ function isStringList(value: unknown, maxItems: number): value is string[] {
   );
 }
 
+function isOptionalStringList(value: unknown, maxItems: number): value is string[] {
+  return (
+    Array.isArray(value) &&
+    value.length <= maxItems &&
+    value.every(isDraftText)
+  );
+}
+
 function isDepartment(value: unknown): value is Department | "" {
   return value === "" || (DEPARTMENTS as readonly unknown[]).includes(value);
 }
 
-function isCategoryForDepartment(
-  department: Department | "",
-  category: string
-): boolean {
-  if (category === "") return true;
-  return department !== "" && DEPARTMENT_CATEGORIES[department].includes(category);
+function normalizeCourseCategory(
+  department: unknown,
+  category: unknown
+): string | null {
+  if (typeof category !== "string") return null;
+  if (category === "") return "";
+
+  const normalizedCategory =
+    department === "音ゲー基礎学部" && category === "文理系"
+      ? "文理型"
+      : category;
+  if (
+    isDepartment(department) &&
+    department !== "" &&
+    DEPARTMENT_CATEGORIES[department].includes(normalizedCategory)
+  ) {
+    return normalizedCategory;
+  }
+  return null;
+}
+
+function normalizeCourseOfferingType(value: unknown): unknown {
+  if (value === "当期講義") return "当期講義";
+  if (value === "通期講義") return "通期講義";
+  return value;
 }
 
 function isCourseOfferingType(value: unknown): value is CourseOfferingType | "" {
   return value === "" || (COURSE_OFFERING_TYPES as readonly unknown[]).includes(value);
+}
+
+function isCourseLanguage(value: unknown): value is CourseLanguage | "" {
+  return value === "" || (COURSE_LANGUAGES as readonly unknown[]).includes(value);
 }
 
 function isSessionCount(value: unknown): value is number | "" {

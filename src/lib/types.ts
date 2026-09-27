@@ -7,9 +7,12 @@ export const COURSE_OFFERING_TYPES = ["当期講義", "通期講義"] as const;
 export type CourseOfferingType = (typeof COURSE_OFFERING_TYPES)[number];
 
 export const DEPARTMENT_CATEGORIES: Record<Department, readonly string[]> = {
-  "音ゲー基礎学部": ["文理系", "創作系"],
+  "音ゲー基礎学部": ["文理型", "創作系"],
   "音ゲー実践学部": ["アーケード系", "スタンドアロン系", "モバイル系"],
 } as const;
+
+export const COURSE_LANGUAGES = ["日本語", "English", "中文"] as const;
+export type CourseLanguage = (typeof COURSE_LANGUAGES)[number];
 
 // -- Policy agreement fields --
 
@@ -71,6 +74,10 @@ export interface CourseFormData extends PolicyAgreements {
   overview: string;
   goals: string[];
   approach: string;
+  language: CourseLanguage | "";
+  sessionContents: string[];
+  aiUsage: string;
+  gradingMethod: string;
   references: string;
   confirmNoFalsehood: boolean;
 }
@@ -86,6 +93,10 @@ export function createEmptyCourseForm(): CourseFormData {
     overview: "",
     goals: [""],
     approach: "",
+    language: "",
+    sessionContents: [],
+    aiUsage: "",
+    gradingMethod: "",
     references: "",
     confirmNoFalsehood: false,
     confirmPrivacyPolicy: false,

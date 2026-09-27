@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useRef, useEffect } from "react";
+import { useLocale } from "@/lib/i18n";
 
 interface TextAreaProps {
   id: string;
@@ -9,7 +10,7 @@ interface TextAreaProps {
   onChange: (value: string) => void;
   placeholder?: string;
   required?: boolean;
-  maxLength: number;
+  maxLength?: number;
   disabled?: boolean;
 }
 
@@ -23,13 +24,14 @@ export default function TextArea({
   maxLength,
   disabled = false,
 }: TextAreaProps) {
+  const { t } = useLocale();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const charCount = value.length;
   // 上限ちょうど (30/30) は有効。超過 (31/30) からエラー表示。
   // 推敲しながら書けるよう入力の切り捨て (DOM の maxLength) は行わず、
   // 超過は赤ハイライトとバリデーションで知らせる。
-  const isOverLimit = charCount > maxLength;
-  const isAtLimit = charCount === maxLength;
+  const isOverLimit = maxLength !== undefined && charCount > maxLength;
+  const isAtLimit = maxLength !== undefined && charCount === maxLength;
 
   // Auto-resize textarea
   useEffect(() => {
@@ -45,9 +47,9 @@ export default function TextArea({
       <label htmlFor={id} className="form-label">
         {label}
         {required ? (
-          <span className="badge-required">必須</span>
+          <span className="badge-required">{t("必須")}</span>
         ) : (
-          <span className="badge-optional">任意</span>
+          <span className="badge-optional">{t("任意")}</span>
         )}
       </label>
       <textarea
@@ -60,23 +62,28 @@ export default function TextArea({
         disabled={disabled}
         aria-required={required}
         aria-invalid={isOverLimit}
-        aria-describedby={`${id}-counter ${id}-error`}
+        aria-describedby={maxLength ? `${id}-counter ${id}-error` : undefined}
         autoComplete="off"
       />
-      <div className="flex justify-between items-center mt-1">
-        <div
-          id={`${id}-error`}
-          className={`text-xs ${isOverLimit ? "text-[var(--color-error)]" : "text-[var(--color-text-muted)]"}`}
-          aria-live="polite"
-        >
-          {isOverLimit
-            ? `${charCount - maxLength}文字超過しています`
-            : isAtLimit && "上限に達しました"}
+      {maxLength !== undefined && (
+        <div className="flex justify-between items-center mt-1">
+          <div
+            id={`${id}-error`}
+            className={`text-xs ${isOverLimit ? "text-[var(--color-error)]" : "text-[var(--color-text-muted)]"}`}
+            aria-live="polite"
+          >
+            {isOverLimit
+              ? `${charCount - maxLength}${t("文字超過しています")}`
+              : isAtLimit && t("上限に達しました")}
+          </div>
+          <div
+            id={`${id}-counter`}
+            className={`char-counter !mt-0 ${isOverLimit ? "over-limit" : ""}`}
+          >
+            {charCount} / {maxLength}
+          </div>
         </div>
-        <div id={`${id}-counter`} className={`char-counter !mt-0 ${isOverLimit ? "over-limit" : ""}`}>
-          {charCount} / {maxLength}
-        </div>
-      </div>
+      )}
     </div>
   );
 }

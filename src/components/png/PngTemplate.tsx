@@ -3,6 +3,7 @@
 import React from "react";
 import Watermark from "./Watermark";
 import { formatDate } from "@/lib/generatePng";
+import { useLocale } from "@/lib/i18n";
 
 interface PngTemplateProps {
   title: string;
@@ -23,6 +24,7 @@ interface PngTemplateProps {
  */
 const PngTemplate = React.forwardRef<HTMLDivElement, PngTemplateProps>(
   function PngTemplate({ title, children, generatedAt }, ref) {
+    const { t } = useLocale();
     const today = formatDate(generatedAt);
 
     return (
@@ -32,8 +34,9 @@ const PngTemplate = React.forwardRef<HTMLDivElement, PngTemplateProps>(
           position: "absolute",
           left: "-9999px",
           top: 0,
-          width: "794px",
-          minHeight: "1123px",
+          width: "793.6px",
+          height: "1122.56px",
+          boxSizing: "border-box",
           backgroundColor: "#ffffff",
           fontFamily: "'Zen Kurenaido', 'Noto Sans JP', sans-serif",
           color: "#1a1a1a",
@@ -48,8 +51,9 @@ const PngTemplate = React.forwardRef<HTMLDivElement, PngTemplateProps>(
           style={{
             position: "relative",
             zIndex: 2,
-            padding: "48px 48px 80px",
+            padding: "38px 42px 38px",
           }}
+          data-a4-content
         >
           {/* Header: Title + PNG creation date */}
           <div
@@ -57,7 +61,7 @@ const PngTemplate = React.forwardRef<HTMLDivElement, PngTemplateProps>(
               display: "flex",
               justifyContent: "space-between",
               alignItems: "flex-start",
-              marginBottom: "32px",
+              marginBottom: "20px",
             }}
           >
             <h1
@@ -78,7 +82,7 @@ const PngTemplate = React.forwardRef<HTMLDivElement, PngTemplateProps>(
                 textAlign: "right",
               }}
             >
-              <div>PNG作成日</div>
+              <div>{t("PNG作成日")}</div>
               <div style={{ fontWeight: 600, fontSize: "14px", color: "#1a1a1a" }}>
                 {today}
               </div>
@@ -103,9 +107,9 @@ const PngTemplate = React.forwardRef<HTMLDivElement, PngTemplateProps>(
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/ongakugamegakuen-logo_b.svg"
-            alt="音楽ゲーム学園"
+            alt={t("音楽ゲーム学園")}
             style={{
-              height: "72px",
+              height: "54px",
               width: "auto",
             }}
           />

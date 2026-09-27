@@ -428,55 +428,6 @@ body {
 }
 
 /* ===================================================
-   Tabs
-   =================================================== */
-
-.tab-container {
-  display: flex;
-  border-bottom: 1px solid var(--color-border);
-  gap: 0;
-}
-
-.tab-button {
-  position: relative;
-  flex: 1;
-  padding: 0.875rem 1rem;
-  font-size: 0.9375rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  color: var(--color-text-secondary);
-  background: none;
-  border: none;
-  cursor: pointer;
-  transition: color 0.2s ease, background-color 0.2s ease;
-  min-height: 48px;
-  text-align: center;
-}
-
-.tab-button:hover {
-  color: var(--color-text-primary);
-  background-color: rgba(34, 211, 238, 0.05);
-}
-
-.tab-button.active {
-  color: #ffffff;
-  font-weight: 700;
-}
-
-/* Neon underline for the selected tab */
-.tab-button.active::after {
-  content: "";
-  position: absolute;
-  left: 18%;
-  right: 18%;
-  bottom: -1px;
-  height: 3px;
-  border-radius: 999px;
-  background: linear-gradient(90deg, var(--color-accent-cyan), var(--color-accent-pink));
-  box-shadow: 0 0 12px rgba(34, 211, 238, 0.35);
-}
-
-/* ===================================================
    Card / Surface
    =================================================== */
 
@@ -622,4 +573,3 @@ body {
   outline-offset: 2px;
   border-radius: 4px;
 }
-

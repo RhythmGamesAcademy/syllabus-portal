@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useLocale } from "@/lib/i18n";
 
 interface ListInputProps {
   id: string;
@@ -13,6 +14,8 @@ interface ListInputProps {
   maxLength?: number;
   /** 追加できる項目数の上限。項目ごとに異なるため呼び出し側で指定する。 */
   maxItems: number;
+  /** 固定数の行を表示し、項目の追加・削除を無効にする。 */
+  fixedCount?: number;
 }
 
 export default function ListInput({
@@ -24,12 +27,17 @@ export default function ListInput({
   required = false,
   maxLength,
   maxItems,
+  fixedCount,
 }: ListInputProps) {
-  const canAdd = items.length < maxItems;
+  const { locale, t } = useLocale();
+  const canAdd = fixedCount === undefined && items.length < maxItems;
   const [focusedIndex, setFocusedIndex] = React.useState<number | null>(null);
 
   const handleItemChange = (index: number, value: string) => {
-    const updated = [...items];
+    const updated =
+      fixedCount === undefined
+        ? [...items]
+        : Array.from({ length: fixedCount }, (_, itemIndex) => items[itemIndex] ?? "");
     updated[index] = value;
     onChange(updated);
   };
@@ -52,14 +60,17 @@ export default function ListInput({
       <legend className="form-legend">
         {label}
         {required ? (
-          <span className="badge-required">必須</span>
+          <span className="badge-required">{t("必須")}</span>
         ) : (
-          <span className="badge-optional">任意</span>
+          <span className="badge-optional">{t("任意")}</span>
         )}
       </legend>
 
       <div className="list-items">
-        {items.map((item, index) => {
+        {Array.from(
+          { length: fixedCount ?? items.length },
+          (_, index) => items[index] ?? ""
+        ).map((item, index) => {
           const charCount = item.length;
           // 上限ちょうど (30/30) は有効。超過 (31/30) からエラー表示。
           // 推敲しながら書けるよう入力の切り捨て (DOM の maxLength) は行わず、
@@ -84,27 +95,37 @@ export default function ListInput({
                   aria-describedby={maxLength ? `${id}-${index}-counter ${id}-${index}-error` : undefined}
                   autoComplete="off"
                 />
-                {items.length > 1 && (
+                {fixedCount === undefined && items.length > 1 && (
                   <button
                     type="button"
                     className="btn-remove"
                     onClick={() => handleRemove(index)}
-                    aria-label={`${index + 1}番目を削除`}
+                    aria-label={
+                      locale === "ja"
+                        ? `${index + 1}番目を削除`
+                        : locale === "en"
+                          ? `Remove item ${index + 1}`
+                          : `删除第${index + 1}项`
+                    }
                   >
                     x
                   </button>
                 )}
               </div>
               {maxLength && (focusedIndex === index || isOverLimit) && (
-                <div className="flex justify-between items-center mt-1 pl-8 pr-12">
+                <div
+                  className={`flex justify-between items-center mt-1 pl-8 ${
+                    fixedCount === undefined ? "pr-12" : "pr-0"
+                  }`}
+                >
                   <div
                     id={`${id}-${index}-error`}
                     className={`text-xs ${isOverLimit ? "text-[var(--color-error)]" : "text-[var(--color-text-muted)]"}`}
                     aria-live="polite"
                   >
                     {isOverLimit
-                      ? `${charCount - maxLength}文字超過しています`
-                      : isAtLimit && "上限に達しました"}
+                      ? `${charCount - maxLength}${t("文字超過しています")}`
+                      : isAtLimit && t("上限に達しました")}
                   </div>
                   <div id={`${id}-${index}-counter`} className={`char-counter !mt-0 ${isOverLimit ? "over-limit" : ""}`}>
                     {charCount} / {maxLength}
@@ -116,17 +137,19 @@ export default function ListInput({
         })}
       </div>
 
-      <button
-        type="button"
-        className="btn-secondary list-add"
-        onClick={handleAdd}
-        disabled={!canAdd}
-      >
-        + 項目を追加
-        <span className="list-add-count">
-          ({items.length}/{maxItems})
-        </span>
-      </button>
+      {fixedCount === undefined && (
+        <button
+          type="button"
+          className="btn-secondary list-add"
+          onClick={handleAdd}
+          disabled={!canAdd}
+        >
+          + {t("項目を追加")}
+          <span className="list-add-count">
+            ({items.length}/{maxItems})
+          </span>
+        </button>
+      )}
     </fieldset>
   );
 }

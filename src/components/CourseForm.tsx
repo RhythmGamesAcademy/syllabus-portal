@@ -16,14 +16,15 @@ import {
   DEPARTMENTS,
   DEPARTMENT_CATEGORIES,
   COURSE_OFFERING_TYPES,
+  COURSE_LANGUAGES,
   calculateCredits,
 } from "@/lib/types";
 import {
   CHAR_LIMITS,
   MAX_GOAL_ITEMS,
   PLACEHOLDERS,
-  SESSION_MIN,
   SESSION_MAX,
+  SESSION_MIN,
 } from "@/lib/constants";
 import { generatePng, formatDateForFilename, sanitizeFilename } from "@/lib/generatePng";
 import {
@@ -42,9 +43,15 @@ import {
   writeLocalDraft,
 } from "@/lib/localDraft";
 import { usePolicyAgreement } from "@/lib/usePolicyAgreement";
+import { getLocalizedCharacterLimit, useLocale } from "@/lib/i18n";
 
 export default function CourseForm() {
+  const { locale, t } = useLocale();
   const [formData, setFormData] = useState<CourseFormData>(createEmptyCourseForm());
+  const currentFormData = React.useMemo(
+    () => ({ ...createEmptyCourseForm(), ...formData }),
+    [formData]
+  );
   const [isGenerating, setIsGenerating] = useState(false);
   const [currentTerm, setCurrentTerm] = useState<number | null>(null);
   const [draftNotice, setDraftNotice] = useState<DraftNotice | null>(null);
@@ -69,8 +76,7 @@ export default function CourseForm() {
     } else if (result.status === "invalid") {
       setDraftNotice({
         kind: "error",
-        message:
-          "保存済みの下書きを読み込めませんでした。データが破損しているか、現在のフォーム形式と異なる可能性があります。下書きは削除せず残しています。",
+        message: "保存済みの下書きを読み込めませんでした。データが破損しているか、現在のフォーム形式と異なる可能性があります。下書きは削除せず残しています。",
       });
     } else if (result.status === "unavailable") {
       setDraftNotice({
@@ -136,20 +142,36 @@ export default function CourseForm() {
 
   // Handle session count change
   const handleSessionChange = (valStr: string) => {
+    if (!/^\d*$/.test(valStr)) return;
     if (valStr === "") {
       updateField("sessionCount", "");
       return;
     }
-    const num = parseInt(valStr, 10);
-    if (!isNaN(num)) {
-      updateField("sessionCount", num);
+    const sessionCount = Number(valStr);
+    if (Number.isSafeInteger(sessionCount)) {
+      updateField("sessionCount", sessionCount);
     }
   };
 
   // Session count validation & auto credit calculation
-  const sessionCountNum = typeof formData.sessionCount === "number" ? formData.sessionCount : 0;
+  const sessionCountNum =
+    typeof currentFormData.sessionCount === "number"
+      ? currentFormData.sessionCount
+      : 0;
   const isSessionValid = sessionCountNum >= SESSION_MIN && sessionCountNum <= SESSION_MAX;
   const credits = calculateCredits(sessionCountNum);
+  const characterLimits = React.useMemo(
+    () => ({
+      overview: getLocalizedCharacterLimit(CHAR_LIMITS.overview, locale),
+      goal: getLocalizedCharacterLimit(CHAR_LIMITS.goal, locale),
+      approach: getLocalizedCharacterLimit(CHAR_LIMITS.approach, locale),
+      sessionContent: getLocalizedCharacterLimit(CHAR_LIMITS.sessionContent, locale),
+      aiUsage: getLocalizedCharacterLimit(CHAR_LIMITS.aiUsage, locale),
+      gradingMethod: getLocalizedCharacterLimit(CHAR_LIMITS.gradingMethod, locale),
+      reference: getLocalizedCharacterLimit(CHAR_LIMITS.reference, locale),
+    }),
+    [locale]
+  );
 
   // Validation: check if form is valid and generation button should be enabled
   const isFormValid = React.useMemo(() => {
@@ -162,49 +184,64 @@ export default function CourseForm() {
       overview,
       goals,
       approach,
+      language,
+      sessionContents,
+      aiUsage,
+      gradingMethod,
       references,
       confirmNoFalsehood,
       confirmPrivacyPolicy,
       confirmRegulations,
-    } = formData;
+    } = currentFormData;
 
     const hasRequiredFields =
       subjectName.trim() !== "" &&
-      subjectName.length <= CHAR_LIMITS.subjectName &&
       instructorName.trim() !== "" &&
-      instructorName.length <= CHAR_LIMITS.instructorName &&
       department !== "" &&
       courseCategory !== "" &&
       offeringType !== "" &&
       isSessionValid &&
       overview.trim() !== "" &&
-      overview.length <= CHAR_LIMITS.overview &&
+      overview.length <= characterLimits.overview &&
       approach.trim() !== "" &&
-      approach.length <= CHAR_LIMITS.approach &&
-      (references === "" || references.length <= CHAR_LIMITS.reference);
+      approach.length <= characterLimits.approach &&
+      language !== "" &&
+      aiUsage.trim() !== "" &&
+      aiUsage.length <= characterLimits.aiUsage &&
+      gradingMethod.trim() !== "" &&
+      gradingMethod.length <= characterLimits.gradingMethod &&
+      (references === "" || references.length <= characterLimits.reference);
 
     const hasValidGoals =
       goals.length > 0 &&
       goals.some((g) => g.trim() !== "") &&
-      goals.filter(g => g.trim() !== "").every((g) => g.length <= CHAR_LIMITS.goal);
+      goals.filter(g => g.trim() !== "").every((g) => g.length <= characterLimits.goal);
+    const hasValidSessionContents =
+      sessionContents.length >= sessionCountNum &&
+      sessionContents
+        .slice(0, sessionCountNum)
+        .every(
+          (content) =>
+            content.trim() !== "" && content.length <= characterLimits.sessionContent
+        );
 
     return (
       hasRequiredFields &&
       hasValidGoals &&
+      hasValidSessionContents &&
       confirmNoFalsehood &&
       confirmPrivacyPolicy &&
       confirmRegulations
     );
-  }, [formData, isSessionValid]);
+  }, [currentFormData, isSessionValid, sessionCountNum, characterLimits]);
 
   const handleSaveDraft = () => {
     hasUserEditedRef.current = true;
-    const draftData = createCourseDraft(formData);
+    const draftData = createCourseDraft(currentFormData);
     if (parseCourseDraft(draftData) === null) {
       setDraftNotice({
         kind: "error",
-        message:
-          "入力内容が下書きの保存可能な形式を超えています。入力内容を確認してください。既存の下書きは削除していません。",
+        message: "入力内容が下書きの保存可能な形式を超えています。入力内容を確認してください。既存の下書きは削除していません。",
       });
       return;
     }
@@ -223,8 +260,7 @@ export default function CourseForm() {
           }
         : {
             kind: "error",
-            message:
-              "下書きを保存できませんでした。ブラウザの設定や保存容量をご確認ください。既存の下書きは削除していません。",
+            message: "下書きを保存できませんでした。ブラウザの設定や保存容量をご確認ください。既存の下書きは削除していません。",
           }
     );
   };
@@ -260,13 +296,13 @@ export default function CourseForm() {
         setIsGenerating(true);
       });
 
-      const filename = `講義開講申請書_${sanitizeFilename(
-        formData.subjectName
+      const filename = `${locale === "ja" ? "シラバス" : locale === "en" ? "Syllabus" : "教学大纲"}_${sanitizeFilename(
+        currentFormData.subjectName
       )}_${formatDateForFilename(generatedAt)}.png`;
       await generatePng(templateRef.current, filename);
     } catch (err) {
       console.error("PNG generation error:", err);
-      alert("PNGの生成に失敗しました。もう一度お試しください。");
+      alert(t("PNGの生成に失敗しました。もう一度お試しください。"));
     } finally {
       flushSync(() => {
         setPngSnapshot(null);
@@ -275,34 +311,32 @@ export default function CourseForm() {
     }
   };
 
-  const availableCategories = formData.department
-    ? DEPARTMENT_CATEGORIES[formData.department]
+  const availableCategories = currentFormData.department
+    ? DEPARTMENT_CATEGORIES[currentFormData.department]
     : [];
 
   return (
     <div>
       <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
-        <SectionHeading divider={false}>講義基本情報</SectionHeading>
+        <SectionHeading divider={false}>{t("シラバス基本情報")}</SectionHeading>
 
         {/* Subject Name & Instructor Name */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <TextInput
             id="course-subject"
-            label="科目名"
-            value={formData.subjectName}
+            label={t("科目名")}
+            value={currentFormData.subjectName}
             onChange={(val) => updateField("subjectName", val)}
-            placeholder={PLACEHOLDERS.course.subjectName}
+            placeholder={t(PLACEHOLDERS.course.subjectName)}
             required
-            maxLength={CHAR_LIMITS.subjectName}
           />
           <TextInput
             id="course-instructor"
-            label="担当講師"
-            value={formData.instructorName}
+            label={t("担当講師")}
+            value={currentFormData.instructorName}
             onChange={(val) => updateField("instructorName", val)}
-            placeholder={PLACEHOLDERS.course.instructorName}
+            placeholder={t(PLACEHOLDERS.course.instructorName)}
             required
-            maxLength={CHAR_LIMITS.instructorName}
           />
         </div>
 
@@ -310,47 +344,60 @@ export default function CourseForm() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <SelectInput
             id="course-department"
-            label="対象学部"
-            value={formData.department}
+            label={t("対象学部")}
+            value={currentFormData.department}
             onChange={handleDepartmentChange}
             options={DEPARTMENTS}
+            optionLabels={DEPARTMENTS}
             required
           />
           <SelectInput
             id="course-category"
-            label="講義区分"
-            value={formData.courseCategory}
+            label={t("講義区分")}
+            value={currentFormData.courseCategory}
             onChange={(val) => updateField("courseCategory", val)}
             options={availableCategories}
-            placeholder={
-              formData.department ? "選択してください" : "先に対象学部を選択してください"
-            }
+            optionLabels={availableCategories}
+            placeholder={t(
+              currentFormData.department
+                ? "選択してください"
+                : "先に対象学部を選択してください"
+            )}
             required
-            disabled={!formData.department}
+            disabled={!currentFormData.department}
           />
         </div>
 
-        <SectionHeading>開講条件</SectionHeading>
+        <SectionHeading>{t("開講条件")}</SectionHeading>
 
         <div className="max-w-xl">
           <SelectInput
             id="course-offering-type"
-            label="開講時期"
-            value={formData.offeringType}
+            label={t("開講時期")}
+            value={currentFormData.offeringType}
             onChange={(val) =>
               updateField("offeringType", val as CourseFormData["offeringType"])
             }
             options={COURSE_OFFERING_TYPES}
+            optionLabels={COURSE_OFFERING_TYPES}
             required
           />
           <p className="mt-2 text-sm text-[var(--color-text-muted)]" aria-live="polite">
             {currentTerm === null
-              ? formData.offeringType
-                ? `選択結果: ${formData.offeringType}（対象期は2026年8月1日以降に確定）`
-                : "対象期は2026年8月1日以降に表示されます。"
-              : formData.offeringType
-                ? `PNGへの印字: ${formatOfferingForPng(formData.offeringType, currentTerm)}`
-                : `対象期: #${currentTerm}期（開講時期を選択するとPNGへの印字を確認できます）`}
+              ? currentFormData.offeringType
+                ? locale === "ja"
+                  ? `選択結果: ${currentFormData.offeringType}（対象期は2026年8月1日以降に確定）`
+                  : locale === "en"
+                    ? `Selected: ${currentFormData.offeringType} (term confirmed from August 1, 2026)`
+                    : `所选：${currentFormData.offeringType}（开课学期将于 2026 年 8 月 1 日起确定）`
+                : t("対象期は2026年8月1日以降に表示されます。")
+              : currentFormData.offeringType
+                ? `${t("PNGへの印字: ")}${formatOfferingForPng(currentFormData.offeringType, currentTerm, locale)}`
+                : locale === "ja"
+                  ? `対象期: #${currentTerm}期（開講時期を選択するとPNGへの印字を確認できます）`
+                  : locale === "en"
+                    ? `Term: #${currentTerm} (select an offering period to preview the PNG)`
+                    : `学期：第${currentTerm}学期（选择开课时间后可预览 PNG 内容）`}
           </p>
         </div>
 
@@ -359,104 +406,161 @@ export default function CourseForm() {
           <div>
             <TextInput
               id="course-sessions"
-              label="講義回数 (3〜15回)"
-              type="number"
-              value={formData.sessionCount === "" ? "" : String(formData.sessionCount)}
+              label={t("講義回数 (3〜15回)")}
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              value={currentFormData.sessionCount === "" ? "" : String(currentFormData.sessionCount)}
               onChange={handleSessionChange}
-              placeholder={PLACEHOLDERS.course.sessionCount}
+              placeholder={t(PLACEHOLDERS.course.sessionCount)}
               required
-              min={SESSION_MIN}
-              max={SESSION_MAX}
             />
-            {formData.sessionCount !== "" && !isSessionValid && (
+            {currentFormData.sessionCount !== "" && !isSessionValid && (
               <p className="text-xs text-[var(--color-error)] mt-1">
-                講義回数は {SESSION_MIN}〜{SESSION_MAX} 回の範囲で入力してください
+                {t("講義回数は半角数字で 3〜15 回の範囲で入力してください")}
               </p>
             )}
           </div>
           <div>
             <label className="form-label">
-              単位数
-              <span className="badge-auto">自動算出</span>
+              {t("単位")}
+              <span className="badge-auto">{t("自動算出")}</span>
             </label>
             <div className="auto-value">
-              {isSessionValid ? `${credits} 単位` : "- 単位"}
+              {isSessionValid
+                ? locale === "ja"
+                  ? `${credits} 単位`
+                  : `${credits}${locale === "en" ? " " : ""}${t("単位")}`
+                : locale === "ja"
+                  ? "- 単位"
+                  : `-${locale === "en" ? " " : ""}${t("単位")}`}
               <span className="text-xs text-[var(--color-text-muted)] font-normal ml-2">
-                (3〜5回:1 / 6〜10回:2 / 11〜15回:3)
+                {t("(3〜5回:1 / 6〜10回:2 / 11〜15回:3)")}
               </span>
             </div>
           </div>
         </div>
 
-        <SectionHeading>講義内容</SectionHeading>
+        <SectionHeading>{t("講義内容")}</SectionHeading>
 
         {/* Course Overview */}
         <TextArea
           id="course-overview"
-          label="講義概要"
-          value={formData.overview}
+          label={t("講義概要")}
+          value={currentFormData.overview}
           onChange={(val) => updateField("overview", val)}
-          placeholder={PLACEHOLDERS.course.overview}
+          placeholder={t(PLACEHOLDERS.course.overview)}
           required
-          maxLength={CHAR_LIMITS.overview}
+          maxLength={characterLimits.overview}
         />
 
         {/* Goals */}
         <ListInput
           id="course-goals"
-          label="受講者の到達目標"
-          items={formData.goals}
+          label={t("受講者の到達目標")}
+          items={currentFormData.goals}
           onChange={(items) => updateField("goals", items)}
-          placeholder={PLACEHOLDERS.course.goal}
+          placeholder={t(PLACEHOLDERS.course.goal)}
           required
-          maxLength={CHAR_LIMITS.goal}
+          maxLength={characterLimits.goal}
           maxItems={MAX_GOAL_ITEMS}
         />
 
         {/* Approach / Policy */}
         <TextArea
           id="course-approach"
-          label="講義の進め方・方針"
-          value={formData.approach}
+          label={t("講義の進め方・方針")}
+          value={currentFormData.approach}
           onChange={(val) => updateField("approach", val)}
-          placeholder={PLACEHOLDERS.course.approach}
+          placeholder={t(PLACEHOLDERS.course.approach)}
           required
-          maxLength={CHAR_LIMITS.approach}
+          maxLength={characterLimits.approach}
         />
 
-        {/* References (optional) */}
+        <SelectInput
+          id="course-language"
+          label={t("使用言語（原語表記）")}
+          value={currentFormData.language}
+          onChange={(value) =>
+            updateField("language", value as CourseFormData["language"])
+          }
+          options={COURSE_LANGUAGES}
+          optionLabels={COURSE_LANGUAGES}
+          required
+        />
+
+        {isSessionValid && (
+          <ListInput
+            id="course-session-contents"
+            label={
+              locale === "ja"
+                ? `各回の内容（各回${characterLimits.sessionContent}文字以内）`
+                : locale === "en"
+                  ? `Session Topics (up to ${characterLimits.sessionContent} characters each)`
+                  : `每次课程内容（每项最多 ${characterLimits.sessionContent} 个字符）`
+            }
+            items={currentFormData.sessionContents}
+            onChange={(items) => updateField("sessionContents", items)}
+            placeholder={t("各回で扱う内容")}
+            required
+            maxLength={characterLimits.sessionContent}
+            maxItems={SESSION_MAX}
+            fixedCount={sessionCountNum}
+          />
+        )}
+
+        <TextArea
+          id="course-ai-usage"
+          label={t("受講者の生成AIの使用について")}
+          value={currentFormData.aiUsage}
+          onChange={(value) => updateField("aiUsage", value)}
+          placeholder={t(PLACEHOLDERS.course.aiUsage)}
+          required
+          maxLength={characterLimits.aiUsage}
+        />
+
+        <TextArea
+          id="course-grading-method"
+          label={t("成績評価方法")}
+          value={currentFormData.gradingMethod}
+          onChange={(value) => updateField("gradingMethod", value)}
+          placeholder={t(PLACEHOLDERS.course.gradingMethod)}
+          required
+          maxLength={characterLimits.gradingMethod}
+        />
+
         <TextArea
           id="course-references"
-          label="参考文献など"
-          value={formData.references}
-          onChange={(val) => updateField("references", val)}
-          placeholder={PLACEHOLDERS.course.references}
-          maxLength={CHAR_LIMITS.reference}
+          label={t("参考文献など")}
+          value={currentFormData.references}
+          onChange={(value) => updateField("references", value)}
+          placeholder={t(PLACEHOLDERS.course.references)}
+          maxLength={characterLimits.reference}
         />
 
-        <SectionHeading>確認・同意</SectionHeading>
+        <SectionHeading>{t("確認・同意")}</SectionHeading>
 
         <AgreementSection
-          confirmNoFalsehood={formData.confirmNoFalsehood}
+          confirmNoFalsehood={currentFormData.confirmNoFalsehood}
           onFalsehoodChange={(val) => updateField("confirmNoFalsehood", val)}
           falsehoodCheckboxId="confirm-falsehood-course"
           policies={[
             {
               modalId: "privacy",
               checkboxId: "confirm-privacy-course",
-              checked: formData.confirmPrivacyPolicy,
+              checked: currentFormData.confirmPrivacyPolicy,
               markdownPath: "/privacy-policy.md",
-              title: "プライバシーポリシー",
-              label: "に同意します",
+              title: t("プライバシーポリシー"),
+              label: t("に同意します"),
               field: "confirmPrivacyPolicy",
             },
             {
               modalId: "lecturer",
               checkboxId: "confirm-regulations-course",
-              checked: formData.confirmRegulations,
+              checked: currentFormData.confirmRegulations,
               markdownPath: "/lecturer-policy.md",
-              title: "講師規約",
-              label: "に同意し、遵守することを誓います",
+              title: t("講師規約"),
+              label: t("に同意し、遵守することを誓います"),
               field: "confirmRegulations",
             },
           ]}
@@ -486,10 +590,10 @@ export default function CourseForm() {
             {isGenerating ? (
               <>
                 <span className="spinner" />
-                <span>PNG生成中...</span>
+                <span>{t("PNG作成中...")}</span>
               </>
             ) : (
-              <span>申請書PNGをダウンロード</span>
+              <span>{t("シラバスPNGをダウンロード")}</span>
             )}
           </button>
         </div>
@@ -498,7 +602,7 @@ export default function CourseForm() {
       {/* Hidden DOM element for PNG rendering */}
       <CoursePngTemplate
         ref={templateRef}
-        data={formData}
+        data={currentFormData}
         generatedAt={pngSnapshot?.generatedAt}
         termNumber={pngSnapshot?.termNumber}
       />

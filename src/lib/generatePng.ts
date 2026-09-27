@@ -44,15 +44,35 @@ export async function generatePng(
 ): Promise<void> {
   await waitForFonts();
 
-  const canvas = await html2canvas(element, {
-    scale: 2,
-    useCORS: true,
-    allowTaint: true,
-    backgroundColor: "#ffffff",
-    logging: false,
-    width: 794,
-    height: element.scrollHeight,
-  });
+  const content = element.querySelector<HTMLElement>("[data-a4-content]");
+  if (!content) {
+    throw new Error("A4 content container was not found");
+  }
+
+  const originalTransform = content.style.transform;
+  content.style.transform = "none";
+  const availableHeight = element.clientHeight - 122.56;
+  const contentHeight = content.scrollHeight;
+  const fitScale =
+    contentHeight > availableHeight ? availableHeight / contentHeight : 1;
+  content.style.transform = `scale(${fitScale})`;
+  content.style.transformOrigin = "top left";
+
+  let canvas: HTMLCanvasElement;
+  try {
+    canvas = await html2canvas(element, {
+      scale: 300 / 96,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: "#ffffff",
+      logging: false,
+      width: 793.6,
+      height: 1122.56,
+    });
+  } finally {
+    content.style.transform = originalTransform;
+    content.style.transformOrigin = "";
+  }
 
   const blob = await new Promise<Blob | null>((resolve) =>
     canvas.toBlob(resolve, "image/png")
