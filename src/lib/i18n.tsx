@@ -154,12 +154,15 @@ const translations: Record<string, Partial<Record<Locale, string>>> = {
     zh: "我确认所填写的信息真实无误。",
   },
   "に同意します": { en: " and agree.", zh: "并同意。" },
-  "に同意し、遵守することを誓います": {
-    en: " and pledge to comply.",
-    zh: "并承诺遵守。",
+  "を確認し、学園規則第6章第2条の同意事項を承諾します": {
+    en: " and acknowledge the matters agreed to in Chapter 6, Article 2 of the School Rules.",
+    zh: "并确认并同意《学园规则》第6章第2条中的同意事项。",
   },
   "プライバシーポリシー": { en: "Privacy Policy", zh: "隐私政策" },
-  "講師規約": { en: "Lecturer Terms", zh: "講師条款" },
+  "講師向け運用案内（改訂案）": {
+    en: "Operational Guidelines for Lecturer (Revised Draft)",
+    zh: "讲师运营指南（修订案）"
+  },
   "よくある質問 (FAQ)": { en: "Frequently Asked Questions (FAQ)", zh: "常见问题（FAQ）" },
   "申請する際に疑問が生じた場合は、まずこちらをご確認ください。": {
     en: "Please check here if you have questions about creating a syllabus.",
