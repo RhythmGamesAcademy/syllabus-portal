@@ -358,8 +358,8 @@ export default function InstructorForm() {
               checkboxId: "confirm-regulations-inst",
               checked: formData.confirmRegulations,
               markdownPath: "/lecturer-policy.md",
-              title: "講師ガイドライン",
-              label: "に同意し、遵守することを誓います",
+              title: "講師向け運用案内（改訂案）",
+              label: "を確認し、学園規則第6章第2条の同意事項を承諾します",
               field: "confirmRegulations",
             },
           ]}
