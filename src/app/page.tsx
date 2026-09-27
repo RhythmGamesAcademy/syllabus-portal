@@ -21,7 +21,7 @@ export default function Home() {
             />
             <div>
               <h1 className="text-base font-bold tracking-wide text-[var(--color-text-primary)]">
-                音楽ゲーム学園
+                {t("音楽ゲーム学園")}
               </h1>
               <p className="text-xs text-[var(--color-text-secondary)]">{t("シラバス作成ポータル")}</p>
             </div>

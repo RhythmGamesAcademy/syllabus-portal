@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import { useMarkdown } from "@/lib/useMarkdown";
-import { useLocale } from "@/lib/i18n";
+import { useLocale, getLocalizedMarkdownPath } from "@/lib/i18n";
 
 const FOCUSABLE_SELECTOR =
   'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
@@ -25,8 +25,12 @@ export default function PolicyModal({
   markdownPath,
   title,
 }: PolicyModalProps) {
-  const { t } = useLocale();
-  const { content, isLoading, error } = useMarkdown(markdownPath);
+  const { t, locale } = useLocale();
+  const localizedPath = getLocalizedMarkdownPath(markdownPath, locale);
+  const { content, isLoading, error } = useMarkdown(
+    localizedPath,
+    localizedPath !== markdownPath ? markdownPath : undefined
+  );
   const [hasReachedBottom, setHasReachedBottom] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 

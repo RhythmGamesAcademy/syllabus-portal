@@ -16,7 +16,7 @@ export function getLocalizedCharacterLimit(baseLimit: number, locale: Locale): n
 }
 
 const translations: Record<string, Partial<Record<Locale, string>>> = {
-  "音楽ゲーム学園": { en: "Rhythm Games Academy", zh: "音游学院" },
+  "音楽ゲーム学園": { en: "Rhythm Games Academy", zh: "音楽ゲーム学園" },
   "申請書作成ポータル": { en: "Application Portal", zh: "申请门户" },
   "シラバス作成ポータル": { en: "Syllabus Portal", zh: "教学大纲制作门户" },
   "シラバス作成アプリ | 音楽ゲーム学園": {
@@ -225,28 +225,76 @@ const translations: Record<string, Partial<Record<Locale, string>>> = {
   "講義開講申請書": { en: "Syllabus", zh: "教学大纲" },
 };
 
-const faqTranslations: Record<Locale, Array<[string, string]>> = {
-  ja: [],
-  en: [
-    ["What should I do after downloading the syllabus PNG?", "Open the designated Google Form, attach the image. It is also possible to post the syllabus you have prepared, during the initial guidance session or similar."],
-    ["Can I teach in departments other than the one I selected?", "Yes. The selected department indicates your primary area; you may also teach in other departments."],
-    ["Where should I apply for PC or console rhythm-game courses?", "Select the Standalone category."],
-    ["Where should interdisciplinary courses be categorized?", "Select Liberal Arts and Sciences in Rhythm Game Fundamentals."],
-    ["Is information entered in the form stored on a server?", "No. It is converted to a PNG in your browser. Drafts are stored only in this browser, excluding agreement checkboxes."],
-    ["What is the difference between a current-term and continuing course?", "A current-term course ends after its designated term and requires a new submission to run again. A continuing course lets students continue using materials from the designated term; it does not mean classes run every term or remain available forever."],
-    ["When does the academic term change?", "Terms change on February 1 and August 1, based on Japan time when the PNG is created. The PNG date is not the submission date."],
-    ["How can I update published course materials?", "Do not replace published materials with a revised version. Submit a new course if the content becomes outdated; previous materials may be reused where appropriate."],
-  ],
-  zh: [
-    ["下载教学大纲 PNG 后应该怎么做？", "请打开指定的 Google 表单，附上图片并填写其他项目。（表单信息待更新。）"],
-    ["我可以在所选学部以外授课吗？", "可以。所选学部表示主要活动领域，也可以在其他学部开课。"],
-    ["PC 或家用机音游课程应选择哪一类？", "请选择单机类。"],
-    ["跨学部的综合课程应归入哪一类？", "请选择音游基础学部的文理类。"],
-    ["表单中填写的信息会保存在服务器上吗？", "不会。信息仅在浏览器中生成 PNG；草稿仅保存在当前浏览器中，不包括同意勾选项。"],
-    ["当期课程与长期课程有什么区别？", "当期课程在指定学期结束；再次开课需重新提交。长期课程允许学生继续使用指定学期的资料，但不代表每学期都授课或永久开放。"],
-    ["学期何时切换？", "学期于 2 月 1 日和 8 月 1 日切换，以生成 PNG 时的日本时间为准。PNG 日期并非提交日期。"],
-    ["如何更新已发布的课程资料？", "请勿直接替换已发布资料的版本。资料过时时请作为新课程重新提交；适当情况下可重用旧资料。"],
-  ],
+const faqTranslations: Record<Locale, Record<number, [string, string]>> = {
+  ja: {},
+  en: {
+    1: [
+      "What should I do after downloading the syllabus PNG?",
+      "After accessing the course registration Google Form, there is a section to attach this image. You may also post the syllabus you have created during the initial lecture guidance session or similar.",
+    ],
+    4: [
+      "Can I teach in departments other than the one I selected?",
+      "Yes. The selected department indicates your primary area; you may also teach in other departments.",
+    ],
+    5: [
+      "Where should I apply for PC or console rhythm-game courses?",
+      "Select the 'スタンドアロン系'.",
+    ],
+    6: [
+      "Where should interdisciplinary courses be categorized?",
+      "Select '文理型' in '音ゲー基礎学部'.",
+    ],
+    9: [
+      "Is information entered in the form stored on a server?",
+      "No. It is converted to a PNG in your browser. Drafts are stored only in this browser, excluding agreement checkboxes.",
+    ],
+    10: [
+      "What is the difference between a current-term and continuing course?",
+      "A current-term course ends after its designated term and requires a new submission to run again. A continuing course lets students continue using materials from the designated term; it does not mean classes run every term or remain available forever.",
+    ],
+    11: [
+      "When does the academic term change?",
+      "Terms change on February 1 and August 1, based on Japan time when the PNG is created. The PNG date is not the submission date.",
+    ],
+    12: [
+      "How can I update published course materials?",
+      "Do not replace published materials with a revised version. Submit a new course if the content becomes outdated; previous materials may be reused where appropriate.",
+    ],
+  },
+  zh: {
+    1: [
+      "制作教学大纲并下载 PNG 后，应该怎么做？",
+      "访问选课登记用的 Google 表单后，有一处用于上传该图片。也可以在首次课程说明会等场合展示制作好的教学大纲。",
+    ],
+    4: [
+      "我可以在所选学部以外授课吗？",
+      "可以。所选学部表示主要活动领域，也可以在其他学部开课。",
+    ],
+    5: [
+      "PC 或家用机音游课程应选择哪一类？",
+      "请选择 'スタンドアロン系' 。",
+    ],
+    6: [
+      "跨学部的综合性课程应归入哪一类？",
+      "请选择 '音ゲー基礎学部' 的 '文理型' 。",
+    ],
+    9: [
+      "表单中填写的信息会保存在服务器上吗？",
+      "不会。信息仅在浏览器中生成 PNG；草稿仅保存在当前浏览器中，不包括同意勾选项。",
+    ],
+    10: [
+      "当期课程与长期课程有什么区别？",
+      "当期课程在指定学期结束；再次开课需重新提交。长期课程允许学生继续使用指定学期的资料，但不代表每学期都授课或永久开放。",
+    ],
+    11: [
+      "学期何时切换？",
+      "学期于 2 月 1 日和 8 月 1 日切换，以生成 PNG 时的日本时间为准。PNG 日期并非提交日期。",
+    ],
+    12: [
+      "如何更新已发布的课程资料？",
+      "请勿直接替换已发布资料的版本。资料过时时请作为新课程重新提交；适当情况下可重用旧资料。",
+    ],
+  },
 };
 
 export type FaqTranslation = { question: string; answer: string };
@@ -332,7 +380,7 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
       setLocale: changeLocale,
       t: (text) => translate(text, locale),
       getFaqTranslation: (id) => {
-        const entry = faqTranslations[locale][id - 1];
+        const entry = faqTranslations[locale]?.[id];
         return entry ? { question: entry[0], answer: entry[1] } : null;
       },
     }),
@@ -358,4 +406,13 @@ export function getLocaleForLanguage(language: string): Locale {
   if (language === "English") return "en";
   if (language === "中文") return "zh";
   return "ja";
+}
+
+export function getLocalizedMarkdownPath(basePath: string, locale: Locale): string {
+  if (locale === "ja") return basePath;
+  const ext = ".md";
+  if (basePath.endsWith(ext)) {
+    return `${basePath.slice(0, -ext.length)}.${locale}${ext}`;
+  }
+  return basePath;
 }
