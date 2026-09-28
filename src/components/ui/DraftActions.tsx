@@ -22,11 +22,11 @@ export default function DraftActions({
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap gap-3">
+        <button type="button" className="btn-secondary-red" onClick={onDelete}>
+          {t("下書きを削除")}
+        </button>
         <button type="button" className="btn-secondary" onClick={onSave}>
           {t("下書きを保存")}
-        </button>
-        <button type="button" className="btn-secondary" onClick={onDelete}>
-          {t("下書きを削除")}
         </button>
       </div>
       {notice && (

@@ -23,6 +23,7 @@
   --color-accent-pink: #ff4fd8;
   --color-accent-lavender: #b9a7ff;
   --color-accent-cyan: #22d3ee;
+  --color-accent-red: #dc354f;
 
   /* Text */
   --color-text-primary: #f5f7ff;
@@ -394,13 +395,41 @@ body {
   min-height: 44px;
 }
 
+.btn-secondary-red {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  background-color: var(--color-accent-red);
+  border: 1px dashed var(--color-border);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 44px;
+}
+
 .btn-secondary:hover:not(:disabled) {
   border-color: var(--color-accent-cyan);
   color: var(--color-accent-cyan);
   background-color: rgba(34, 211, 238, 0.06);
 }
 
+.btn-secondary-red:hover:not(:disabled) {
+  border-color: var(--color-accent-cyan);
+  color: var(--color-text-primary);
+  background-color: var(--color-accent-red)
+}
+
 .btn-secondary:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.btn-secondary-red:disabled {
   opacity: 0.35;
   cursor: not-allowed;
 }
