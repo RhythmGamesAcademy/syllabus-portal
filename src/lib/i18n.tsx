@@ -3,7 +3,6 @@
 import React, {
   createContext,
   useContext,
-  useEffect,
   useMemo,
   useSyncExternalStore,
 } from "react";
@@ -25,9 +24,8 @@ const translations: Record<string, Partial<Record<Locale, string>>> = {
   "音楽ゲーム学園のシラバスをブラウザ上で作成・ダウンロードできるWEBアプリケーション。": {
     en: "Create and download Rhythm Games Academy syllabi in your browser.",
   },
-  "学園公式サイト ↗": { en: "Academy Website ↗" },
   "無断転載を禁じます。": {
-    en: "All rights reserved.",
+    en: "Unauthorized reproduction is prohibited.",
   },
   "言語": { en: "Language" },
   "シラバス作成": { en: "Create a Syllabus" },
@@ -35,44 +33,38 @@ const translations: Record<string, Partial<Record<Locale, string>>> = {
     en: 'Enter the details and select "Download Syllabus PNG" to create an A4-sized syllabus image.',
   },
   "生成後は所定の手続きに従って運営へ提出してください。": {
-    en: "After generating the image, submit it to the administration using the designated procedure.",
+    en: "After generating the image, submit it to Management using the designated procedure.",
   },
-  "講義の基本情報": { en: "Syllabus Information" },
+  "講義の基本情報": { en: "Course Information" },
   "シラバス基本情報": { en: "Syllabus Information" },
   "科目名": { en: "Course Title" },
   "担当講師": { en: "Assigned Lecturer" },
-  "対象学部": { en: "Department" },
+  "対象学部": { en: "Faculty" },
   "講義区分": { en: "Course Category" },
-  "開講条件": { en: "Course Details" },
-  "開講時期": { en: "Offering Period" },
+  "開講条件": { en: "Course Opening Conditions" },
+  "開講時期": { en: "Course Opening Period" },
   "対象期は2026年8月1日以降に確定": {
-    en: "The term will be determined from August 1, 2026.",
+    en: "The academic term will be determined from August 1, 2026.",
   },
   "対象期は2026年8月1日以降に表示されます。": {
-    en: "The term will be shown from August 1, 2026.",
+    en: "The academic term will be shown from August 1, 2026.",
   },
   "PNGへの印字: ": { en: "Printed on PNG: " },
-  "対象期: ": { en: "Term: " },
+  "対象期: ": { en: "Academic Term: " },
   "期（開講時期を選択するとPNGへの印字を確認できます）": {
-    en: " (select an offering period to preview the PNG)",
+    en: " (select a course opening period to preview the PNG)",
   },
   "選択結果: ": { en: "Selection: " },
   "講義回数 (3〜15回)": { en: "Number of Sessions (3–15)" },
   "講義回数": { en: "Sessions" },
-  "講座回数 (3〜15回)": { en: "Number of Sessions (3–15)" },
   "講義回数は半角数字で 3〜15 回の範囲で入力してください": {
-    en: "Enter 3–15 using half-width digits.",
-  },
-  "講座回数は半角数字で 3〜15 回の範囲で入力してください": {
     en: "Enter 3–15 using half-width digits.",
   },
   "単位": { en: "Credits" },
   "自動算出": { en: "Calculated" },
   "単位数": { en: "Credits" },
-  "講義内容": { en: "Syllabus Content" },
-  "講座内容": { en: "Syllabus Content" },
+  "講義内容": { en: "Course Content" },
   "講義概要": { en: "Course Overview" },
-  "講座概要": { en: "Course Overview" },
   "受講者の到達目標": { en: "Learning Outcomes" },
   "講義の進め方・方針": { en: "Teaching Method and Approach" },
   "使用言語（原語表記）": { en: "Language of Instruction (native name)" },
@@ -93,7 +85,7 @@ const translations: Record<string, Partial<Record<Locale, string>>> = {
   "番目を削除": { en: " item" },
   "選択してください": { en: "Please select" },
   "先に対象学部を選択してください": {
-    en: "Select a department first",
+    en: "Select a faculty first",
   },
   "PNGへの印字": { en: "PNG Preview" },
   "PNG作成中...": { en: "Generating PNG..." },
@@ -132,19 +124,19 @@ const translations: Record<string, Partial<Record<Locale, string>>> = {
   },
   "に同意します": { en: " and agree." },
   "を確認し、学園規則第6章第2条の同意事項を承諾します": {
-    en: " and acknowledge the matters agreed to in Chapter 6, Article 2 of the School Rules.",
+    en: " and acknowledge the matters agreed to in Chapter 6, Article 2 of the Academy Regulations.",
   },
   "プライバシーポリシー": { en: "Privacy Policy" },
   "講師向け運用案内（改訂案）": {
-    en: "Operational Guidelines for Lecturer (Revised Draft)"
+    en: "Operational Guidelines for Lecturers (Revised Draft)",
   },
   "よくある質問 (FAQ)": { en: "Frequently Asked Questions (FAQ)" },
   "申請する際に疑問が生じた場合は、まずこちらをご確認ください。": {
-    en: "Please check here if you have questions about creating a syllabus.",
+    en: "Please check here if you have questions about applying.",
   },
   "よくある質問を読み込み中...": { en: "Loading FAQs..." },
   "FAQの読み込みに失敗しました: ": { en: "Could not load FAQs: " },
-  "PNG作成日": { en: "PNG Created" },
+  "PNG作成日": { en: "PNG Creation Date" },
   "シラバス": { en: "Syllabus" },
   "日本語": { en: "Japanese" },
   "English": { en: "English" },
@@ -174,14 +166,14 @@ const translations: Record<string, Partial<Record<Locale, string>>> = {
   "(3〜5回:1 / 6〜10回:2 / 11〜15回:3)": {
     en: "(3–5 sessions: 1 / 6–10: 2 / 11–15: 3)",
   },
-  "シラバス作成の流れについて": { en: "Syllabus Submission" },
-  "申請の流れについて": { en: "Submission Process" },
-  "担当学部について": { en: "Departments" },
+  "シラバス作成の流れについて": { en: "Syllabus Creation Process" },
+  "申請の流れについて": { en: "Application Process" },
+  "担当学部について": { en: "Faculties" },
   "講義区分について": { en: "Course Categories" },
   "実績について": { en: "Qualifications and Experience" },
-  "講師活動について": { en: "Teaching at the Academy" },
+  "講師活動について": { en: "Lecturer Activities" },
   "プライバシーについて": { en: "Privacy" },
-  "講義の開講時期について": { en: "Course Periods" },
+  "講義の開講時期について": { en: "Course Opening Periods" },
   "講義資料について": { en: "Course Materials" },
   "閉じる": { en: "Close" },
   "読み込み中...": { en: "Loading..." },
@@ -191,7 +183,7 @@ const translations: Record<string, Partial<Record<Locale, string>>> = {
   "上限に達しました": { en: "Character limit reached" },
   "文字超過しています": { en: " characters over the limit" },
   "文字": { en: " characters" },
-  "講義開講申請書": { en: "Syllabus" },
+  "講義開講申請書": { en: "Course Opening Application Form" },
 };
 
 const faqTranslations: Record<Locale, Record<number, [string, string]>> = {
@@ -202,16 +194,16 @@ const faqTranslations: Record<Locale, Record<number, [string, string]>> = {
       "After accessing the course registration Google Form, there is a section to attach this image. You may also post the syllabus you have created during the initial lecture guidance session or similar.",
     ],
     4: [
-      "Can I teach in departments other than the one I selected?",
-      "Yes. The selected department indicates your primary area; you may also teach in other departments.",
+      "Can I teach in faculties other than the one I selected?",
+      "Yes. The selected faculty indicates your primary area; you may also teach in other faculties.",
     ],
     5: [
       "Where should I apply for PC or console rhythm-game courses?",
-      "Select the 'スタンドアロン系'.",
+      "Select 'Standalone'.",
     ],
     6: [
       "Where should interdisciplinary courses be categorized?",
-      "Select '文理型' in '音ゲー基礎学部'.",
+      "Select 'Humanities and Sciences' in 'Rhythm Games Foundations Faculty'.",
     ],
     9: [
       "Is information entered in the form stored on a server?",
@@ -231,6 +223,7 @@ const faqTranslations: Record<Locale, Record<number, [string, string]>> = {
     ],
   },
 };
+
 
 export type FaqTranslation = { question: string; answer: string };
 
