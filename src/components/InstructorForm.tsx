@@ -167,11 +167,6 @@ export default function InstructorForm() {
     const hasRequiredFields =
       name.trim() !== "" &&
       name.length <= CHAR_LIMITS.name &&
-      age.trim() !== "" &&
-      age.length <= CHAR_LIMITS.age &&
-      discordId.trim() !== "" &&
-      discordId.length <= CHAR_LIMITS.discordId &&
-      (xId === "" || xId.length <= CHAR_LIMITS.xId) &&
       field.trim() !== "" &&
       field.length <= CHAR_LIMITS.field &&
       department !== "" &&

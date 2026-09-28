@@ -3,9 +3,7 @@
 export const CHAR_LIMITS = {
   // 講師登録申請
   name: 15,
-  age: 3,
-  discordId: 33,
-  xId: 16,
+  subjectName: 30,
   field: 30,
   fieldReason: 100,
   achievement: 30,

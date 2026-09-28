@@ -43,7 +43,11 @@ import {
   writeLocalDraft,
 } from "@/lib/localDraft";
 import { usePolicyAgreement } from "@/lib/usePolicyAgreement";
-import { getLocalizedCharacterLimit, useLocale } from "@/lib/i18n";
+import {
+  getLocalizedCharacterLimit,
+  getLocaleForLanguage,
+  useLocale,
+} from "@/lib/i18n";
 
 export default function CourseForm() {
   const { locale, t } = useLocale();
@@ -160,18 +164,48 @@ export default function CourseForm() {
       : 0;
   const isSessionValid = sessionCountNum >= SESSION_MIN && sessionCountNum <= SESSION_MAX;
   const credits = calculateCredits(sessionCountNum);
-  const characterLimits = React.useMemo(
-    () => ({
-      overview: getLocalizedCharacterLimit(CHAR_LIMITS.overview, locale),
-      goal: getLocalizedCharacterLimit(CHAR_LIMITS.goal, locale),
-      approach: getLocalizedCharacterLimit(CHAR_LIMITS.approach, locale),
-      sessionContent: getLocalizedCharacterLimit(CHAR_LIMITS.sessionContent, locale),
-      aiUsage: getLocalizedCharacterLimit(CHAR_LIMITS.aiUsage, locale),
-      gradingMethod: getLocalizedCharacterLimit(CHAR_LIMITS.gradingMethod, locale),
-      reference: getLocalizedCharacterLimit(CHAR_LIMITS.reference, locale),
-    }),
-    [locale]
-  );
+  const characterLimits = React.useMemo(() => {
+    const languageLocale = getLocaleForLanguage(currentFormData.language);
+
+    return {
+      subjectName: getLocalizedCharacterLimit(
+        CHAR_LIMITS.subjectName,
+        languageLocale
+      ),
+      name: getLocalizedCharacterLimit(
+        CHAR_LIMITS.name,
+        languageLocale
+      ),
+      overview: getLocalizedCharacterLimit(
+        CHAR_LIMITS.overview,
+        languageLocale
+      ),
+      goal: getLocalizedCharacterLimit(
+        CHAR_LIMITS.goal,
+        languageLocale
+      ),
+      approach: getLocalizedCharacterLimit(
+        CHAR_LIMITS.approach,
+        languageLocale
+      ),
+      sessionContent: getLocalizedCharacterLimit(
+        CHAR_LIMITS.sessionContent,
+        languageLocale
+      ),
+      aiUsage: getLocalizedCharacterLimit(
+        CHAR_LIMITS.aiUsage,
+        languageLocale
+      ),
+      gradingMethod: getLocalizedCharacterLimit(
+        CHAR_LIMITS.gradingMethod,
+        languageLocale
+      ),
+      reference: getLocalizedCharacterLimit(
+        CHAR_LIMITS.reference,
+        languageLocale
+      ),
+    };
+  }, [currentFormData.language]);
 
   // Validation: check if form is valid and generation button should be enabled
   const isFormValid = React.useMemo(() => {
@@ -329,6 +363,7 @@ export default function CourseForm() {
             onChange={(val) => updateField("subjectName", val)}
             placeholder={t(PLACEHOLDERS.course.subjectName)}
             required
+            maxLength={characterLimits.subjectName}
           />
           <TextInput
             id="course-instructor"
@@ -337,6 +372,7 @@ export default function CourseForm() {
             onChange={(val) => updateField("instructorName", val)}
             placeholder={t(PLACEHOLDERS.course.instructorName)}
             required
+            maxLength={characterLimits.name}
           />
         </div>
 
