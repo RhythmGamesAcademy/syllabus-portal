@@ -80,13 +80,6 @@ export default function InstructorForm() {
     setFormData((prev) => ({ ...prev, [key]: value }));
   };
 
-  // Convert full-width numbers to half-width and keep only digits
-  const handleAgeChange = (value: string) => {
-    const halfWidth = value.replace(/[０-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xFEE0));
-    const digitsOnly = halfWidth.replace(/[^0-9]/g, "");
-    updateField("age", digitsOnly);
-  };
-
   // Handle department change with cascading reset of courseCategory
   const handleDepartmentChange = (dept: string) => {
     hasUserEditedRef.current = true;
@@ -150,9 +143,6 @@ export default function InstructorForm() {
   const isFormValid = React.useMemo(() => {
     const {
       name,
-      age,
-      discordId,
-      xId,
       field,
       department,
       courseCategory,
@@ -215,7 +205,7 @@ export default function InstructorForm() {
       <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
         <SectionHeading divider={false}>基本情報</SectionHeading>
 
-        {/* Name & Age */}
+        {/* Name */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <TextInput
             id="instructor-name"
@@ -226,39 +216,9 @@ export default function InstructorForm() {
             required
             maxLength={CHAR_LIMITS.name}
           />
-          <TextInput
-            id="instructor-age"
-            label="年齢"
-            value={formData.age}
-            onChange={handleAgeChange}
-            placeholder={PLACEHOLDERS.instructor.age}
-            required
-            maxLength={CHAR_LIMITS.age}
-            inputMode="numeric"
-            pattern="[0-9]*"
-          />
         </div>
 
-        {/* Discord ID & X ID */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <TextInput
-            id="instructor-discord"
-            label="Discord ID"
-            value={formData.discordId}
-            onChange={(val) => updateField("discordId", val)}
-            placeholder={PLACEHOLDERS.instructor.discordId}
-            required
-            maxLength={CHAR_LIMITS.discordId}
-          />
-          <TextInput
-            id="instructor-x"
-            label="X ID"
-            value={formData.xId}
-            onChange={(val) => updateField("xId", val)}
-            placeholder={PLACEHOLDERS.instructor.xId}
-            maxLength={CHAR_LIMITS.xId}
-          />
-        </div>
+
 
         <SectionHeading>担当領域</SectionHeading>
 
