@@ -405,7 +405,7 @@ body {
   font-weight: 600;
   color: var(--color-text-primary);
   background-color: var(--color-accent-red);
-  border: 1px dashed var(--color-border);
+  border: transparent;
   border-radius: 0.5rem;
   cursor: pointer;
   transition: all 0.2s ease;
